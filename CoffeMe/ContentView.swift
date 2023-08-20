@@ -8,14 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var menu = Menu()
+    @StateObject var history = History()
+    @State private var showingAddScreen = false
+    
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List {
+                if history.servings.isEmpty {
+                    Button("Add Your First Drink") {
+                        showingAddScreen = true
+                    }
+                }else {
+                    ForEach(history.servings) { serving in
+                        HStack {
+                            VStack{
+                                Text(serving.name)
+                                    .font(.headline)
+                                Text(serving.description)
+                                    .font(.caption)
+                            }
+                            Spacer()
+                            
+                            Text("\(serving.caffeine) mg")
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddScreen, content: MenuView.init)
+            .navigationTitle("Coffe Me")
+            .toolbar {
+                Button {
+                    showingAddScreen = true
+                } label: {
+                    Label("Add New Drink", systemImage: "plus")
+                }
+            }
         }
-        .padding()
+        .environmentObject(menu)
+        .environmentObject(history)
     }
 }
 
